@@ -69,6 +69,20 @@ namespace utils {
         >,
         bool
     >;
+
+    /********************************************************************
+     * False type at instantiation time
+     * @see https://stackoverflow.com/questions/58694521/what-is-stdfalse-type-or-stdtrue-type
+     * @see https://stackoverflow.com/questions/14637356/static-assert-fails-compilation-even-though-template-function-is-called-nowhere
+     * @see https://artificial-mind.net/blog/2020/10/03/always-false
+     *********************************************************************/
+    template <typename T>
+    struct always_false : std::false_type {};
 }
+
+enum StorageOrder {
+    YMajor = 0,
+    XMajor = 1
+};
 
 }
