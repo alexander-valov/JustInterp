@@ -1,0 +1,74 @@
+#pragma once
+
+#include <type_traits>
+
+namespace JustInterp {
+
+namespace utils {
+
+    /********************************************************************
+     * C++17 compatible implementation of std::experimental::is_detected
+     * @see https://en.cppreference.com/w/cpp/experimental/is_detected
+     * @see https://people.eecs.berkeley.edu/~brock/blog/detection_idiom.php
+     * @see https://blog.tartanllama.xyz/detection-idiom/
+     *********************************************************************/
+    namespace detail {
+        template <template <class...> class Trait, class Enabler, class... Args>
+        struct is_detected : std::false_type{};
+
+        template <template <class...> class Trait, class... Args>
+        struct is_detected<Trait, std::void_t<Trait<Args...>>, Args...> : std::true_type{};
+    }
+    template <template <class...> class Trait, class... Args>
+    using is_detected = typename detail::is_detected<Trait, void, Args...>::type;
+
+
+    /********************************************************************
+     * Aliases to check support of specific methods or types
+     *********************************************************************/
+    /* check data() method support */
+    template <class T>
+    using method_data_t = decltype(std::declval<T>().data());
+    template <class T>
+    using supports_data = is_detected<method_data_t, T>;
+
+    /* check size() method support */
+    template <class T>
+    using method_size_t = decltype(std::declval<T>().size());
+    template <class T>
+    using supports_size = is_detected<method_size_t, T>;
+
+    /* check begin() method support */
+    template <class T>
+    using method_begin_t = decltype(std::declval<T>().begin());
+    template <class T>
+    using supports_begin = is_detected<method_begin_t, T>;
+
+    /* check end() method support */
+    template <class T>
+    using method_end_t = decltype(std::declval<T>().end());
+    template <class T>
+    using supports_end = is_detected<method_end_t, T>;
+
+    /* check data() is Real* */
+    template<class T, class Real>
+    using is_real_type_data = std::is_same<Real*, decltype(std::declval<T>().data())>;
+
+
+    /********************************************************************
+     * Alias to detect real-type iterable container
+     *********************************************************************/
+    template<typename T, typename Real>
+    using IsRealContainer = std::enable_if_t<
+        std::conjunction_v<
+            is_real_type_data<T, Real>,
+            supports_begin<T>,
+            supports_end<T>,
+            supports_data<T>,
+            supports_size<T>
+        >,
+        bool
+    >;
+}
+
+}
