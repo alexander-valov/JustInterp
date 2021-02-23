@@ -1,4 +1,5 @@
 #include <vector>
+#include <array>
 #include <cmath>
 
 #include "gtest/gtest.h"
