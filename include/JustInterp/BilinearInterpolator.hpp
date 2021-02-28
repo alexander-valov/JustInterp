@@ -5,8 +5,8 @@
 #include <numeric>
 #include <cassert>
 
-#include "Utils.hpp"
-#include "LinearInterpolator.hpp"
+#include "JustInterp/Utils.hpp"
+#include "JustInterp/LinearInterpolator.hpp"
 
 namespace JustInterp {
 

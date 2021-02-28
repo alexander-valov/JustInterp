@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "doctest.h"
-#include "LinearInterpolator.hpp"
+#include "JustInterp/LinearInterpolator.hpp"
 
 TEST_SUITE("LinearInterpolatorTest") {
 

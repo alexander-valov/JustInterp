@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Utils.hpp"
+#include "JustInterp/Utils.hpp"
 
 namespace JustInterp {
 
