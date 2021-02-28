@@ -1,12 +1,12 @@
 #include <vector>
 #include <cmath>
 
-#include "gtest/gtest.h"
+#include "doctest.h"
 #include "LinearInterpolator.hpp"
 
-const double TOL = 1.0e-12;
+TEST_SUITE("LinearInterpolatorTest") {
 
-TEST(LinearInterpolatorTest, check_node_points) {
+TEST_CASE("check_node_points") {
     /* define domain */
     double x_min = -98.983;
     double x_max = 273.635;
@@ -42,11 +42,11 @@ TEST(LinearInterpolatorTest, check_node_points) {
     auto interpolator = JustInterp::LinearInterpolator<double>(x_test, y_test);
 
     for (int i = 0; i < n_test_nodes; i++) {
-        EXPECT_NEAR(y_test[i], interpolator(x_test[i]), TOL);
+        CHECK(interpolator(x_test[i]) == doctest::Approx(y_test[i]));
     }
 }
 
-TEST(LinearInterpolatorTest, linear_function) {
+TEST_CASE("linear_function") {
     /* define linear function ceofficients */
     double k = 8.9876;
     double b = 3.875;
@@ -86,11 +86,11 @@ TEST(LinearInterpolatorTest, linear_function) {
 
     /* check test values */
     for (int i = 0; i < n_test_points; i++) {
-        EXPECT_NEAR(y_test[i], interpolator(x_test[i]), TOL);
+        CHECK(interpolator(x_test[i]) == doctest::Approx(y_test[i]));
     }
 }
 
-TEST(LinearInterpolatorTest, extrapolation_test) {
+TEST_CASE("extrapolation_test") {
     /* define domain */
     double x_min = -2.0;
     double x_max = 1.0;
@@ -114,8 +114,8 @@ TEST(LinearInterpolatorTest, extrapolation_test) {
         y_const_func[i] = const_func;
     }
     auto interp_const = JustInterp::LinearInterpolator<double>(x_uniform, y_const_func);
-    EXPECT_NEAR(const_func, interp_const(x1), TOL);
-    EXPECT_NEAR(const_func, interp_const(x2), TOL);
+    CHECK(interp_const(x1) == doctest::Approx(const_func));
+    CHECK(interp_const(x2) == doctest::Approx(const_func));
 
     /* check extrapolation for linear function */
     double k = 17.6252;
@@ -126,8 +126,8 @@ TEST(LinearInterpolatorTest, extrapolation_test) {
         y_linear_func[i] = linear_func(x_uniform[i]);
     }
     auto interp_linear = JustInterp::LinearInterpolator<double>(x_uniform, y_linear_func);
-    EXPECT_NEAR(linear_func(x1), interp_linear(x1), TOL);
-    EXPECT_NEAR(linear_func(x2), interp_linear(x2), TOL);
+    CHECK(interp_linear(x1) == doctest::Approx(linear_func(x1)));
+    CHECK(interp_linear(x2) == doctest::Approx(linear_func(x2)));
 
     /* check extrapolation for x^2 */
     std::vector<double> y_square_func(n_nodes);
@@ -143,6 +143,8 @@ TEST(LinearInterpolatorTest, extrapolation_test) {
         double m = (y_square_func[n_nodes - 1] - y_square_func[n_nodes - 2]) / (x_uniform[n_nodes - 1] - x_uniform[n_nodes - 2]);
         return y_square_func[n_nodes - 2] + m * (x - x_uniform[n_nodes - 2]);
     };
-    EXPECT_NEAR(linear_left(x1), interp_square(x1), TOL);
-    EXPECT_NEAR(linear_right(x2), interp_square(x2), TOL);
+    CHECK(interp_square(x1) == doctest::Approx(linear_left(x1)));
+    CHECK(interp_square(x2) == doctest::Approx(linear_right(x2)));
+}
+
 }
