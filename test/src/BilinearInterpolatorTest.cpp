@@ -7,7 +7,7 @@
 
 TEST_SUITE("BilinearInterpolatorTest") {
 
-TEST_CASE("check_node_points") {
+TEST_CASE("BilinearInterpolatorTest.check_node_points") {
     /* define domain */
     double x_min = -98.983;
     double x_max = 273.635;
@@ -78,7 +78,7 @@ TEST_CASE("check_node_points") {
     }
 }
 
-TEST_CASE("bilinear_function") {
+TEST_CASE("BilinearInterpolatorTest.bilinear_function") {
     /* define bilinear function ceofficients */
     double a_coeff = 17.837;
     double b_coeff = 25.524;
@@ -156,7 +156,7 @@ TEST_CASE("bilinear_function") {
     }
 }
 
-TEST_CASE("extrapolation_test") {
+TEST_CASE("BilinearInterpolatorTest.extrapolation_test") {
     /* define bilinear function ceofficients */
     double a_coeff = 17.837;
     double b_coeff = 25.524;

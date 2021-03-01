@@ -6,7 +6,7 @@
 
 TEST_SUITE("LinearInterpolatorTest") {
 
-TEST_CASE("check_node_points") {
+TEST_CASE("LinearInterpolatorTest.check_node_points") {
     /* define domain */
     double x_min = -98.983;
     double x_max = 273.635;
@@ -46,7 +46,7 @@ TEST_CASE("check_node_points") {
     }
 }
 
-TEST_CASE("linear_function") {
+TEST_CASE("LinearInterpolatorTest.linear_function") {
     /* define linear function ceofficients */
     double k = 8.9876;
     double b = 3.875;
@@ -90,7 +90,7 @@ TEST_CASE("linear_function") {
     }
 }
 
-TEST_CASE("extrapolation_test") {
+TEST_CASE("LinearInterpolatorTest.extrapolation_test") {
     /* define domain */
     double x_min = -2.0;
     double x_max = 1.0;
