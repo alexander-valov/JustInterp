@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Set options
+ROOT_FOLDER=".."
+SINGLE_HEADER=OFF
+CMAKE_BUILD_TYPE=Debug
+
+# Build project
+cmake -S $ROOT_FOLDER -B $ROOT_FOLDER/build/$CMAKE_BUILD_TYPE \
+    -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+    -DJUST_INTERP_BUILD_TESTS=ON \
+    -DJUST_INTERP_SINGLE_HEADER=$SINGLE_HEADER \
+    -DCMAKE_CXX_FLAGS="-m64 -Wall -pedantic"
+cmake --build $ROOT_FOLDER/build/$CMAKE_BUILD_TYPE
+
+# Run test
+cd $ROOT_FOLDER/build/$CMAKE_BUILD_TYPE
+ctest
+cd ../..

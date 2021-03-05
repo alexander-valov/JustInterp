@@ -22,12 +22,19 @@ if (POLICY CMP0077)
 endif()
 
 option(JUST_INTERP_BUILD_TESTS "Build the unit tests" ${JUST_INTERP_MAIN_PROJECT})
+option(JUST_INTERP_SINGLE_HEADER "Use single-header version" OFF)
 
 #================================================================
 # Define configuration
 #================================================================
-set(JUST_INTERP_TARGET_NAME       ${PROJECT_NAME})
-set(JUST_INTERP_INCLUDE_BUILD_DIR "${PROJECT_SOURCE_DIR}/include")
+set(JUST_INTERP_TARGET_NAME            ${PROJECT_NAME})
+if (JUST_INTERP_SINGLE_HEADER)
+    set(JUST_INTERP_INCLUDE_BUILD_DIR "${PROJECT_SOURCE_DIR}/include_single")
+    message("    -- Using single-header version")
+else()
+    set(JUST_INTERP_INCLUDE_BUILD_DIR "${PROJECT_SOURCE_DIR}/include")
+    message("    -- Using multi-header version")
+endif()
 
 #================================================================
 # Default build type

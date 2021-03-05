@@ -1,12 +1,219 @@
 #pragma once
 
+// #include "JustInterp/Utils.hpp"
+
+
+#include <type_traits>
+
+namespace JustInterp {
+
+namespace utils {
+
+    /********************************************************************
+     * C++17 compatible implementation of std::experimental::is_detected
+     * @see https://en.cppreference.com/w/cpp/experimental/is_detected
+     * @see https://people.eecs.berkeley.edu/~brock/blog/detection_idiom.php
+     * @see https://blog.tartanllama.xyz/detection-idiom/
+     *********************************************************************/
+    namespace detail {
+        template <template <class...> class Trait, class Enabler, class... Args>
+        struct is_detected : std::false_type{};
+
+        template <template <class...> class Trait, class... Args>
+        struct is_detected<Trait, std::void_t<Trait<Args...>>, Args...> : std::true_type{};
+    }
+    template <template <class...> class Trait, class... Args>
+    using is_detected = typename detail::is_detected<Trait, void, Args...>::type;
+
+
+    /********************************************************************
+     * Aliases to check support of specific methods or types
+     *********************************************************************/
+    /* check data() method support */
+    template <class T>
+    using method_data_t = decltype(std::declval<T>().data());
+    template <class T>
+    using supports_data = is_detected<method_data_t, T>;
+
+    /* check size() method support */
+    template <class T>
+    using method_size_t = decltype(std::declval<T>().size());
+    template <class T>
+    using supports_size = is_detected<method_size_t, T>;
+
+    /* check begin() method support */
+    template <class T>
+    using method_begin_t = decltype(std::declval<T>().begin());
+    template <class T>
+    using supports_begin = is_detected<method_begin_t, T>;
+
+    /* check end() method support */
+    template <class T>
+    using method_end_t = decltype(std::declval<T>().end());
+    template <class T>
+    using supports_end = is_detected<method_end_t, T>;
+
+    /* check data() is Real* */
+    template<class T, class Real>
+    using is_real_type_data = std::is_same<Real*, decltype(std::declval<T>().data())>;
+
+
+    /********************************************************************
+     * Alias to detect real-type iterable container
+     *********************************************************************/
+    template<typename T, typename Real>
+    using IsRealContainer = std::enable_if_t<
+        std::conjunction_v<
+            is_real_type_data<T, Real>,
+            supports_begin<T>,
+            supports_end<T>,
+            supports_data<T>,
+            supports_size<T>
+        >,
+        bool
+    >;
+
+    /********************************************************************
+     * False type at instantiation time
+     * @see https://stackoverflow.com/questions/58694521/what-is-stdfalse-type-or-stdtrue-type
+     * @see https://stackoverflow.com/questions/14637356/static-assert-fails-compilation-even-though-template-function-is-called-nowhere
+     * @see https://artificial-mind.net/blog/2020/10/03/always-false
+     *********************************************************************/
+    template <typename T>
+    struct always_false : std::false_type {};
+}
+
+enum StorageOrder {
+    YMajor = 0,
+    XMajor = 1
+};
+
+}
+// #include "JustInterp/LinearInterpolator.hpp"
+
+
+#include <vector>
+#include <algorithm>
+#include <cassert>
+
+// #include "JustInterp/Utils.hpp"
+
+
+namespace JustInterp {
+
+template<class Real>
+class LinearInterpolator {
+
+public:
+
+    /********************************************************************
+     * Constructors
+     *********************************************************************/
+    LinearInterpolator() = default;
+    template<class Index>
+    LinearInterpolator(Index size, const Real* x, const Real* y) { SetData(size, x, y); }
+    template<class Container, utils::IsRealContainer<Container, Real> = true>
+    LinearInterpolator(const Container& x, const Container& y) { SetData(x, y); }
+
+    /********************************************************************
+     * @brief Set known data points and values.
+     * @param[in] size Size of given arrays
+     * @param[in] x Known points array
+     * @param[in] y Known values array
+     *********************************************************************/
+    template<class Index>
+    void SetData(Index size, const Real* x, const Real* y) {
+        assert((size > 0 && "Empty data for interpolation"));
+        xData_.clear();
+        yData_.clear();
+        std::copy(x, x + size, std::back_inserter(xData_));
+        std::copy(y, y + size, std::back_inserter(yData_));
+    }
+
+    /********************************************************************
+     * @brief Set known data points and values.
+     * 
+     * Container must have real-type values and the following methods:
+     * data(), size(), begin(), end()
+     * 
+     * @param[in] x Known points array
+     * @param[in] y Known values array
+     *********************************************************************/
+    template<class Container, utils::IsRealContainer<Container, Real> = true>
+    void SetData(const Container& x, const Container& y) {
+        assert((x.size() == y.size() && "Sizes of points and values are mismatch"));
+        SetData(x.size(), x.data(), y.data());
+    }
+
+    /********************************************************************
+     * Access
+     *********************************************************************/
+    const std::vector<Real>& GetX() const { return xData_; }
+    const std::vector<Real>& GetY() const { return yData_; }
+
+    /********************************************************************
+     * @brief Calculate interpolation function at the given point.
+     * @param[in] x Point to interpolate
+     * @return Interpolated value
+     *********************************************************************/
+    Real operator()(const Real& x) const {
+        auto n = xData_.size();
+        if (n > 1) {
+            /* linear extrapolation */
+            if (x <= xData_.front()) {
+                return yData_[0] + (x - xData_[0]) * (yData_[1] - yData_[0]) / (xData_[1] - xData_[0]);
+            }
+            if (x >= xData_.back()) {
+                return yData_[n - 2] + (x - xData_[n - 2]) * (yData_[n - 1] - yData_[n - 2]) / (xData_[n - 1] - xData_[n - 2]);
+            }
+        } else {
+            /* constant extrapolation */
+            return yData_.front();
+        }
+
+        auto lower = std::lower_bound(xData_.begin(), xData_.end(), x);
+        std::size_t i = std::distance(xData_.begin(), lower) - 1;
+        return yData_[i] + (x - xData_[i]) * (yData_[i + 1] - yData_[i]) / (xData_[i + 1] - xData_[i]);
+    }
+
+    /********************************************************************
+     * @brief Calculate interpolation function at each point of given array.
+     * 
+     * Container must have real-type values and the following methods:
+     * data(), size(), begin(), end()
+     * 
+     * @param[in] x Array of points to interpolate
+     * @return std::vector<Real> of interpolated values
+     *********************************************************************/
+    template<class Container, utils::IsRealContainer<Container, Real> = true>
+    std::vector<Real> operator()(const Container& x) const {
+        std::vector<Real> result;
+        result.reserve(x.size());
+        for (const auto& item : x) {
+            result.push_back(this->operator()(item));
+        }
+        return result;
+    }
+
+private:
+
+    std::vector<Real> xData_, yData_;
+    
+};
+
+}
+// #include "JustInterp/BilinearInterpolator.hpp"
+
+
 #include <vector>
 #include <algorithm>
 #include <numeric>
 #include <cassert>
 
-#include "JustInterp/Utils.hpp"
-#include "JustInterp/LinearInterpolator.hpp"
+// #include "JustInterp/Utils.hpp"
+
+// #include "JustInterp/LinearInterpolator.hpp"
+
 
 namespace JustInterp {
 

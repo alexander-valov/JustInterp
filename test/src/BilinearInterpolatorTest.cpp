@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "doctest.h"
-#include "JustInterp/BilinearInterpolator.hpp"
+#include "JustInterp/JustInterp.hpp"
 
 TEST_SUITE("BilinearInterpolatorTest") {
 

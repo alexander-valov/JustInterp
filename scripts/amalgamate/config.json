@@ -1,0 +1,8 @@
+{
+    "project": "Just C++17 Interpolation Library",
+    "target": "../include_single/JustInterp/JustInterp.hpp",
+    "sources": [
+        "include/JustInterp/JustInterp.hpp"
+    ],
+    "include_paths": ["include"]
+}
