@@ -94,6 +94,7 @@ enum StorageOrder {
 
 #include <vector>
 #include <algorithm>
+#include <iterator>
 #include <cassert>
 
 // #include "JustInterp/Utils.hpp"
@@ -207,6 +208,7 @@ private:
 
 #include <vector>
 #include <algorithm>
+#include <iterator>
 #include <numeric>
 #include <cassert>
 

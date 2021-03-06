@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <iterator>
 #include <cassert>
 
 #include "JustInterp/Utils.hpp"
