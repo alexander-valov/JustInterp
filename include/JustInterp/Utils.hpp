@@ -71,6 +71,25 @@ namespace utils {
     >;
 
     /********************************************************************
+     * Alias to detect iterable container of real-type iterable containers
+     *********************************************************************/
+    template<template<typename> class Container, typename RealContainer, typename Real>
+    using IsContainerOfRealContainers = std::enable_if_t<
+        std::conjunction_v<
+            supports_begin<Container<RealContainer>>,
+            supports_end<Container<RealContainer>>,
+            supports_data<Container<RealContainer>>,
+            supports_size<Container<RealContainer>>,
+            is_real_type_data<RealContainer, Real>,
+            supports_begin<RealContainer>,
+            supports_end<RealContainer>,
+            supports_data<RealContainer>,
+            supports_size<RealContainer>
+        >,
+        bool
+    >;
+
+    /********************************************************************
      * False type at instantiation time
      * @see https://stackoverflow.com/questions/58694521/what-is-stdfalse-type-or-stdtrue-type
      * @see https://stackoverflow.com/questions/14637356/static-assert-fails-compilation-even-though-template-function-is-called-nowhere
