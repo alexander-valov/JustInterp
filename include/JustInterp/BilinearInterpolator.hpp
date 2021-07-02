@@ -217,11 +217,11 @@ private:
         } else {
             if (nx > 1) {
                 /* constant along y-axis, linear along x-axis */
-                auto interp_x = LinearInterpolator<Real>(x_1d_, z_all_);
+                auto interp_x = LinearInterpolator<Real, LinearExtrapolation>(x_1d_, z_all_);
                 return interp_x(x);
             } else if (ny > 1) {
                 /* constant along x-axis, linear along y-axis */
-                auto interp_y = LinearInterpolator<Real>(y_1d_, z_all_);
+                auto interp_y = LinearInterpolator<Real, LinearExtrapolation>(y_1d_, z_all_);
                 return interp_y(y);
             } else {
                 /* constant extrapolation */

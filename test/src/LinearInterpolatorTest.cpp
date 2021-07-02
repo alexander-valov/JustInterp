@@ -113,7 +113,7 @@ TEST_CASE("LinearInterpolatorTest.extrapolation_test") {
     for (int i = 0; i < n_nodes; i++) {
         y_const_func[i] = const_func;
     }
-    auto interp_const = JustInterp::LinearInterpolator<double>(x_uniform, y_const_func);
+    auto interp_const = JustInterp::LinearInterpolator<double, JustInterp::LinearExtrapolation>(x_uniform, y_const_func);
     CHECK(interp_const(x1) == doctest::Approx(const_func));
     CHECK(interp_const(x2) == doctest::Approx(const_func));
 
@@ -125,7 +125,7 @@ TEST_CASE("LinearInterpolatorTest.extrapolation_test") {
     for (int i = 0; i < n_nodes; i++) {
         y_linear_func[i] = linear_func(x_uniform[i]);
     }
-    auto interp_linear = JustInterp::LinearInterpolator<double>(x_uniform, y_linear_func);
+    auto interp_linear = JustInterp::LinearInterpolator<double, JustInterp::LinearExtrapolation>(x_uniform, y_linear_func);
     CHECK(interp_linear(x1) == doctest::Approx(linear_func(x1)));
     CHECK(interp_linear(x2) == doctest::Approx(linear_func(x2)));
 
@@ -134,7 +134,7 @@ TEST_CASE("LinearInterpolatorTest.extrapolation_test") {
     for (int i = 0; i < n_nodes; i++) {
         y_square_func[i] = x_uniform[i] * x_uniform[i];
     }
-    auto interp_square = JustInterp::LinearInterpolator<double>(x_uniform, y_square_func);
+    auto interp_square = JustInterp::LinearInterpolator<double, JustInterp::LinearExtrapolation>(x_uniform, y_square_func);
     auto linear_left = [&](double x) {
         double m = (y_square_func[1] - y_square_func[0]) / (x_uniform[1] - x_uniform[0]);
         return y_square_func[0] + m * (x - x_uniform[0]);

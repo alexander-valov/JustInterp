@@ -85,4 +85,9 @@ enum StorageOrder {
     XMajor = 1
 };
 
+enum ExtrapolationType {
+    ConstantExtrapolation = 0,
+    LinearExtrapolation = 1
+};
+
 }

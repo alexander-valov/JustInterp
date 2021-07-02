@@ -9,7 +9,7 @@
 
 namespace JustInterp {
 
-template<class Real>
+template<class Real, int ExtrapolationType_ = ConstantExtrapolation>
 class LinearInterpolator {
 
 public:
@@ -65,23 +65,13 @@ public:
      * @return Interpolated value
      *********************************************************************/
     Real operator()(const Real& x) const {
-        auto n = xData_.size();
-        if (n > 1) {
-            /* linear extrapolation */
-            if (x <= xData_.front()) {
-                return yData_[0] + (x - xData_[0]) * (yData_[1] - yData_[0]) / (xData_[1] - xData_[0]);
-            }
-            if (x >= xData_.back()) {
-                return yData_[n - 2] + (x - xData_[n - 2]) * (yData_[n - 1] - yData_[n - 2]) / (xData_[n - 1] - xData_[n - 2]);
-            }
+        if (x <= xData_.front() || x >= xData_.back()) {
+            return Extrapolate(x);
         } else {
-            /* constant extrapolation */
-            return yData_.front();
+            auto lower = std::lower_bound(xData_.begin(), xData_.end(), x);
+            std::size_t i = std::distance(xData_.begin(), lower) - 1;
+            return yData_[i] + (x - xData_[i]) * (yData_[i + 1] - yData_[i]) / (xData_[i + 1] - xData_[i]);
         }
-
-        auto lower = std::lower_bound(xData_.begin(), xData_.end(), x);
-        std::size_t i = std::distance(xData_.begin(), lower) - 1;
-        return yData_[i] + (x - xData_[i]) * (yData_[i + 1] - yData_[i]) / (xData_[i + 1] - xData_[i]);
     }
 
     /********************************************************************
@@ -101,6 +91,41 @@ public:
             result.push_back(this->operator()(item));
         }
         return result;
+    }
+
+private:
+
+    Real Extrapolate(const Real& x) const {
+        if constexpr (ExtrapolationType_ == ConstantExtrapolation) {
+            return ExtrapolateConstant(x);
+        } else if constexpr (ExtrapolationType_ == LinearExtrapolation) {
+            return ExtrapolateLinear(x);
+        } else {
+            static_assert(utils::always_false<Real>::value, "Unknown ExtrapolationType. Avaliable options are ConstantExtrapolation, LinearExtrapolation");
+        }
+    }
+
+    Real ExtrapolateConstant(const Real& x) const {
+        if (x <= xData_.front()) {
+            return yData_.front();
+        } else {
+            return yData_.back();
+        }
+    }
+
+    Real ExtrapolateLinear(const Real& x) const {
+        auto n = xData_.size();
+        if (n > 1) {
+            /* linear extrapolation */
+            if (x <= xData_.front()) {
+                return yData_[0] + (x - xData_[0]) * (yData_[1] - yData_[0]) / (xData_[1] - xData_[0]);
+            } else {
+                return yData_[n - 2] + (x - xData_[n - 2]) * (yData_[n - 1] - yData_[n - 2]) / (xData_[n - 1] - xData_[n - 2]);
+            }
+        } else {
+            /* constant extrapolation */
+            return yData_.front();
+        }
     }
 
 private:
