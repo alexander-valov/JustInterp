@@ -1,7 +1,6 @@
 #include <vector>
 #include <cmath>
-
-#include <iostream>
+#include <array>
 
 #include "doctest.h"
 #include "JustInterp/JustInterp.hpp"
