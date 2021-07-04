@@ -629,6 +629,30 @@ public:
         return x_interpolator(x);
     }
 
+    /********************************************************************
+     * Calculate interpolation function at each given points.
+     * If some points are outside the data extrapolation is performed.
+     * 
+     * Container must have real-type values and the following methods:
+     * data(), size(), begin(), end()
+     * 
+     * @param[in] x Array of x-coordinate. x.size() must be equals y.size()
+     * @param[in] y Array of y-coordinate. x.size() must be equals y.size()
+     * @return std::vector<Real> of interpolated values
+     *********************************************************************/
+    template<class Container, utils::IsRealContainer<Container, Real> = true>
+    std::vector<Real> operator()(const Container& x, const Container& y) const {
+        assert((x.size() == y.size() && "Sizes of x and y are mismatch"));
+        std::vector<Real> result;
+        result.reserve(x.size());
+        for (std::size_t i = 0; i < x.size(); i++) {
+            Real x_i = *(x.begin() + i);
+            Real y_i = *(y.begin() + i);
+            result.push_back(this->operator()(x_i, y_i));
+        }
+        return result;
+    }
+
 private:
 
     std::vector<Real> xData_;
